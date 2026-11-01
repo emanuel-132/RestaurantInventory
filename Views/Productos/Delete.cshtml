@@ -1,0 +1,26 @@
+@model RestaurantInventory.Models.Producto
+
+<div class="container mt-4">
+    <h2 class="text-danger">Eliminar Producto</h2>
+    <hr />
+    
+    <h4>¿Estás seguro de que deseas eliminar este artículo de la base de datos?</h4>
+    <div class="mt-4">
+        <dl class="row">
+            <dt class="col-sm-3">ID</dt>
+            <dd class="col-sm-9">@Model.Id</dd>
+
+            <dt class="col-sm-3">Nombre</dt>
+            <dd class="col-sm-9 fw-bold">@Model.Nombre</dd>
+            
+            <dt class="col-sm-3">Cantidad Óptima</dt>
+            <dd class="col-sm-9">@Model.CantidadOptima</dd>
+        </dl>
+        
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger px-4">Sí, Eliminar</button>
+            <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancelar</a>
+        </form>
+    </div>
+</div>

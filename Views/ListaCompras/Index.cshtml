@@ -1,0 +1,40 @@
+@model IEnumerable<RestaurantInventory.Models.CompraViewModel>
+
+<div class="container mt-4">
+    <h2>Lista de Compras Inteligente</h2>
+    <hr />
+
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-primary">
+            <tr>
+                <th>ID</th>
+                <th>Artículo</th>
+                <th class="text-center">En Inventario</th>
+                <th class="text-center">A Comprar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-success py-4">
+                        <h5 class="fw-bold mb-0">No hay compras pendientes</h5>
+                        <small>Todo el inventario está por encima del punto de reorden.</small>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ProductoId</td>
+                        <td><strong>@item.Nombre</strong></td>
+                        <td class="text-center fw-bold">@item.CantidadActual</td>
+                        <td class="text-center fw-bold text-danger"> @item.CantidadComprar</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

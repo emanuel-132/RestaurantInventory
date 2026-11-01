@@ -1,0 +1,62 @@
+@model RestaurantInventory.Models.Producto
+
+<div class="container mt-4">
+    <h2>Agregar Nuevo Producto</h2>
+    <hr />
+    
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Create">
+                <div class="mb-3">
+                    <label asp-for="Nombre" class="form-label fw-bold">Nombre del Artículo</label>
+                    <input asp-for="Nombre" class="form-control" placeholder="Ej. Leche Entera" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="CantidadOptima" class="form-label fw-bold">Cantidad Óptima</label>
+                        <input asp-for="CantidadOptima" class="form-control" type="number" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PuntoReorden" class="form-label fw-bold">Punto de Reorden</label>
+                        <input asp-for="PuntoReorden" class="form-control" type="number" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PesoPorUnidadGramos" class="form-label fw-bold">Peso Promedio por Unidad (Gramos)</label>
+                    <input asp-for="PesoPorUnidadGramos" class="form-control" type="number" step="0.01" />
+                    <small class="text-muted">Vital para cuando los sensores HX711 hagan la matemática.</small>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="TipoMonitoreo" class="form-label fw-bold">Método de Monitoreo</label>
+                    <select asp-for="TipoMonitoreo" class="form-select">
+                        <option value="1">Cámara QR + Peso (Raspberry Pi)</option>
+                        <option value="2">Solo Peso (Bandeja Analógica)</option>
+                    </select>
+                </div>
+
+                <!-- SECCIÓN DE INVENTARIO INICIAL -->
+                <hr class="mt-4 mb-3" />
+                <h5 class="mb-3 text-muted">Inventario Inicial (Opcional)</h5>
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label class="form-label fw-bold">Cantidad Actual Físicamente</label>
+                        <input type="number" name="CantidadInicial" class="form-control" value="0" min="0" />
+                        <small class="text-muted">Si tienes producto en mercancía, ingrésalo aquí.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Fecha de Expiración</label>
+                        <input type="date" name="FechaExpiracion" class="form-control" />
+                    </div>
+                </div>
+                <hr class="mb-4" />
+
+                <button type="submit" class="btn btn-primary px-4">Guardar Producto</button>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>

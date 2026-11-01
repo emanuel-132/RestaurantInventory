@@ -1,0 +1,119 @@
+﻿@model RestaurantInventory.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Panel de Control";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-6 fw-bold">Panel de Control</h1>
+            <p class="text-muted">Resumen del estado del inventario en tiempo real.</p>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Resumen Rápido -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card text-white bg-primary h-100 shadow-sm border-0">
+                <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                    <h5 class="card-title text-uppercase fw-bold">Artículos en Catálogo</h5>
+                    <h2 class="display-3 fw-bold">@Model.TotalProductos</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card text-white bg-danger h-100 shadow-sm border-0">
+                <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                    <h5 class="card-title text-uppercase fw-bold">Alertas Críticas</h5>
+                    <h2 class="display-3 fw-bold">@Model.AlertasStock</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Emergencia (Punto de Reorden) -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white fw-bold">
+                    Artículos en Punto de Reorden (Acción Requerida)
+                </div>
+                <div class="card-body p-0">
+                    @if (!Model.ProductosCriticos.Any())
+                    {
+                        <div class="p-5 text-center text-success">
+                            <h4 class="fw-bold mb-0">¡Todo bajo control!</h4>
+                            <p class="text-muted mt-2">Ningún artículo está por debajo de su punto de reorden.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Disponible</th>
+                                    <th class="text-center">Línea Roja</th>
+                                    <th class="text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var alerta in Model.ProductosCriticos)
+                                {
+                                    <tr>
+                                        <td class="fw-bold align-middle">@alerta.NombreProducto</td>
+                                        <td class="text-center text-danger fw-bold display-6 align-middle">@alerta.CantidadActual</td>
+                                        <td class="text-center text-muted align-middle">@alerta.PuntoReorden</td>
+                                        <td class="text-center align-middle">
+                                            <span class="badge bg-danger p-2">COMPRAR HOY</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NUEVA: Tabla de Expiraciones -->
+    <div class="row mt-4 mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    Productos por Expirar (Próximos 3 días)
+                </div>
+                <div class="card-body p-0">
+                    @if (!Model.ProductosPorExpirar.Any())
+                    {
+                        <div class="p-4 text-center text-success">
+                            <p class="mb-0 fw-bold">No hay productos próximos a expirar.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Fecha Límite</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var alerta in Model.ProductosPorExpirar)
+                                {
+                                    <tr>
+                                        <td class="fw-bold align-middle">@alerta.NombreProducto</td>
+                                        <td class="text-center text-danger fw-bold align-middle">@alerta.FechaExpiracion.ToString("dd/MM/yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
