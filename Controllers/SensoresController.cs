@@ -16,7 +16,109 @@ namespace RestaurantInventory.Controllers
             _context = context;
         }
 
-        // [HttpPost("salida")]
+
+[HttpPost("salida")]
+public async Task<IActionResult> RemoverQr([FromBody] SensorPayload payload)
+{
+    Producto? producto = null;
+    LoteExpiracion? cajaFisica = null;
+
+    // 1. TIPO 1: Salida de una caja física mediante QR
+    if (!string.IsNullOrEmpty(payload.CodigoQR))
+    {
+        cajaFisica = await _context.Lotes
+            .Include(u => u.Producto)
+            .FirstOrDefaultAsync(u => u.CodigoQR == payload.CodigoQR);
+
+        if (cajaFisica == null)
+        {
+            return NotFound(new { mensaje = "Código QR no reconocido." });
+        }
+
+        producto = cajaFisica.Producto;
+
+        if (cajaFisica.Estado == "Usado")
+        {
+            return BadRequest(new { mensaje = "Esta caja ya fue registrada como usada." });
+        }
+
+        // Marcamos la caja como usada
+        cajaFisica.Estado = "Usado";
+
+        await _context.SaveChangesAsync();
+
+        // Actualizamos el inventario contando las cajas activas
+        var inventario = await _context.Inventarios
+            .FirstOrDefaultAsync(i => i.ProductoId == producto.Id);
+
+        if (inventario != null)
+        {
+            inventario.CantidadEstimada = await _context.Lotes
+                .CountAsync(u => u.ProductoId == producto.Id && u.Estado == "Activo");
+
+            inventario.UltimaActualizacion = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    // 2. TIPO 2: Salida a granel mediante sensor de peso
+    else if (payload.ProductoId.HasValue)
+    {
+        producto = await _context.Productos
+            .FindAsync(payload.ProductoId.Value);
+
+        if (producto == null)
+        {
+            return NotFound(new { mensaje = "Producto no reconocido." });
+        }
+
+        if (producto.PesoPorUnidadGramos <= 0)
+        {
+            return BadRequest(new {
+                mensaje = "El producto no tiene un peso por unidad configurado."
+            });
+        }
+
+        // Calculamos cuántas unidades quedan según el peso actual
+        int cantidadCalculada = (int)Math.Floor(
+            payload.PesoTotalGramos / producto.PesoPorUnidadGramos
+        );
+
+        var inventario = await _context.Inventarios
+            .FirstOrDefaultAsync(i => i.ProductoId == producto.Id);
+
+        if (inventario == null)
+        {
+            return NotFound(new {
+                mensaje = "No existe un registro de inventario para este producto."
+            });
+        }
+
+        // Actualizamos la cantidad según el peso detectado
+        inventario.CantidadEstimada = cantidadCalculada;
+        inventario.UltimaLecturaPesoGramos = payload.PesoTotalGramos;
+        inventario.UltimaActualizacion = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+    }
+    else
+    {
+        return BadRequest(new {
+            mensaje = "Debe proporcionar un Código QR o un ProductoId."
+        });
+    }
+
+    return Ok(new
+    {
+        mensaje = cajaFisica != null
+            ? "Salida de caja física registrada correctamente."
+            : "Salida a granel registrada correctamente.",
+
+        producto = producto!.Nombre,
+        estadoCaja = cajaFisica?.Estado
+    });
+}
 
 
         [HttpPost("lectura")]
