@@ -1,0 +1,51 @@
+@model IEnumerable<RestaurantInventory.Models.LoteExpiracion>
+
+@{
+    ViewData["Title"] = "Imprimir QRs";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h2>Etiquetas QR para: @ViewBag.ProductoNombre</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-primary btn-lg">
+                <i class="bi bi-printer"></i> Imprimir Etiquetas
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">Volver al Catálogo</a>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var lote in Model)
+        {
+            <div class="col">
+                <div class="card h-100 text-center p-3 border-dark shadow-sm">
+                    <h5 class="card-title text-truncate fw-bold">@ViewBag.ProductoNombre</h5>
+                    <div class="my-2">
+                        <!-- Generación del QR dinámico mediante API pública gratuita -->
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=@lote.CodigoQR" alt="QR Code" class="img-fluid" />
+                    </div>
+                    <p class="card-text font-monospace fw-bold mb-1">@lote.CodigoQR</p>
+                    <small class="text-muted">Expira: @lote.FechaExpiracion.ToString("dd/MM/yyyy")</small>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Estilo CSS exclusivo para cuando el navegador imprima en papel -->
+<style>
+    @@media print {
+        .no-print {
+            display: none !important;
+        }
+        body {
+            background-color: white !important;
+        }
+        .card {
+            border: 1px dashed #000 !important;
+            box-shadow: none !important;
+            break-inside: avoid;
+        }
+    }
+</style>

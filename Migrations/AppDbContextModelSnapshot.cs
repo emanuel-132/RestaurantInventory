@@ -142,6 +142,27 @@ namespace RestaurantInventory.Migrations
                     b.ToTable("Productos");
                 });
 
+            modelBuilder.Entity("RestaurantInventory.Models.UnidadFisica", b =>
+                {
+                    b.Property<string>("CodigoQR")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CodigoQR");
+
+                    b.HasIndex("ProductoId");
+
+                    b.ToTable("UnidadesFisicas");
+                });
+
             modelBuilder.Entity("RestaurantInventory.Models.InventarioActual", b =>
                 {
                     b.HasOne("RestaurantInventory.Models.Producto", "Producto")
@@ -173,6 +194,22 @@ namespace RestaurantInventory.Migrations
                         .IsRequired();
 
                     b.Navigation("Producto");
+                });
+
+            modelBuilder.Entity("RestaurantInventory.Models.UnidadFisica", b =>
+                {
+                    b.HasOne("RestaurantInventory.Models.Producto", "Producto")
+                        .WithMany("Unidades")
+                        .HasForeignKey("ProductoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Producto");
+                });
+
+            modelBuilder.Entity("RestaurantInventory.Models.Producto", b =>
+                {
+                    b.Navigation("Unidades");
                 });
 #pragma warning restore 612, 618
         }

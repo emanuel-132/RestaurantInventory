@@ -17,6 +17,8 @@ namespace RestaurantInventory.Models
         public float PesoPorUnidadGramos { get; set; }
         
         // 1 = QR (Cámara) + Peso, 2 = Solo Peso
-        public int TipoMonitoreo { get; set; } 
+        public int TipoMonitoreo { get; set; }
+
+        public ICollection<LoteExpiracion> Lotes { get; set; } = new List<LoteExpiracion>();
     }
 }

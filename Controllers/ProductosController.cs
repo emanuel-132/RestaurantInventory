@@ -21,7 +21,6 @@ namespace RestaurantInventory.Controllers
                 {
                     Id = p.Id,
                     Nombre = p.Nombre,
-                    // Extraemos la cantidad actual desde la tabla de inventarios
                     CantidadActual = _context.Inventarios.Where(i => i.ProductoId == p.Id).Select(i => i.CantidadEstimada).FirstOrDefault(),
                     CantidadOptima = p.CantidadOptima,
                     PuntoReorden = p.PuntoReorden,
@@ -43,16 +42,13 @@ namespace RestaurantInventory.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // Añadimos los parámetros CantidadInicial y FechaExpiracion para recibirlos del formulario HTML
         public async Task<IActionResult> Create([Bind("Nombre,CantidadOptima,PuntoReorden,PesoPorUnidadGramos,TipoMonitoreo")] Producto producto, int CantidadInicial, DateTime? FechaExpiracion)
         {
             if (ModelState.IsValid)
             {
-                // 1. Guardar el producto base primero para que PostgreSQL le asigne un ID
                 _context.Add(producto);
                 await _context.SaveChangesAsync(); 
 
-                // 2. Si el usuario ingresó inventario inicial, crear el registro en InventarioActual
                 if (CantidadInicial > 0 || FechaExpiracion.HasValue)
                 {
                     var inventario = new InventarioActual
@@ -64,12 +60,47 @@ namespace RestaurantInventory.Controllers
                         FechaExpiracionMasProxima = FechaExpiracion.HasValue ? FechaExpiracion.Value.ToUniversalTime() : null
                     };
                     _context.Inventarios.Add(inventario);
+                    
+                    if (producto.TipoMonitoreo == 1 && CantidadInicial > 0)
+                    {
+                        for (int i = 0; i < CantidadInicial; i++)
+                        {
+                            var nuevaCaja = new LoteExpiracion
+                            {
+                                CodigoQR = $"PRD-{producto.Id}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}",
+                                ProductoId = producto.Id,
+                                Estado = "Activo",
+                                FechaExpiracion = FechaExpiracion.HasValue 
+                                                    ? FechaExpiracion.Value.ToUniversalTime() 
+                                                    : DateTime.UtcNow.AddMonths(6)
+                            };
+                            _context.Lotes.Add(nuevaCaja);
+                        }
+                    }
+                    
                     await _context.SaveChangesAsync();
                 }
 
                 return RedirectToAction(nameof(Index));
             }
             return View(producto);
+        }
+
+        // ACCIÓN NUEVA PARA IMPRIMIR LOS QRs INDIVIDUALES
+        public async Task<IActionResult> ImprimirQRs(int id)
+        {
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            var lotes = await _context.Lotes
+                .Where(l => l.ProductoId == id && l.Estado == "Activo")
+                .ToListAsync();
+
+            ViewBag.ProductoNombre = producto.Nombre;
+            return View(lotes);
         }
 
         public async Task<IActionResult> Delete(int? id)

@@ -45,6 +45,12 @@
                         </td>
 
                         <td>
+                            @if (item.TipoMonitoreo == 1)
+                                {
+                            <a asp-action="ImprimirQRs" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">
+                                Ver QRs
+                            </a>
+                             }
                             <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Eliminar</a>
                         </td>
                     </tr>
