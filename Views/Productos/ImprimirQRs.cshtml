@@ -1,51 +1,84 @@
+
 @model IEnumerable<RestaurantInventory.Models.LoteExpiracion>
 
 @{
     ViewData["Title"] = "Imprimir QRs";
 }
 
+<link rel="stylesheet" href="~/css/qr-print.css" asp-append-version="true" />
+
 <div class="container mt-4">
+
     <div class="d-flex justify-content-between align-items-center mb-4 no-print">
         <h2>Etiquetas QR para: @ViewBag.ProductoNombre</h2>
+
         <div>
-            <button onclick="window.print()" class="btn btn-primary btn-lg">
-                <i class="bi bi-printer"></i> Imprimir Etiquetas
+            <button type="button" onclick="imprimirSeleccionados()"
+                    class="btn btn-primary btn-lg">
+                <i class="bi bi-printer"></i> Imprimir seleccionados
             </button>
-            <a asp-action="Index" class="btn btn-secondary">Volver al Catálogo</a>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Volver al Catálogo
+            </a>
         </div>
     </div>
 
+    <div class="no-print mb-3">
+        <button type="button" class="btn btn-outline-primary btn-sm"
+                onclick="seleccionarTodos(true)">
+            Seleccionar todos
+        </button>
+
+        <button type="button" class="btn btn-outline-secondary btn-sm"
+                onclick="seleccionarTodos(false)">
+            Deseleccionar todos
+        </button>
+    </div>
+
     <div class="row row-cols-1 row-cols-md-3 g-4">
+
         @foreach (var lote in Model)
         {
-            <div class="col">
+            <div class="col qr-item">
+
                 <div class="card h-100 text-center p-3 border-dark shadow-sm">
-                    <h5 class="card-title text-truncate fw-bold">@ViewBag.ProductoNombre</h5>
-                    <div class="my-2">
-                        <!-- Generación del QR dinámico mediante API pública gratuita -->
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=@lote.CodigoQR" alt="QR Code" class="img-fluid" />
+
+                    <div class="form-check text-start no-print mb-2">
+                        <input class="form-check-input qr-checkbox"
+                               type="checkbox"
+                               id="qr-@lote.Id" />
+
+                        <label class="form-check-label" for="qr-@lote.Id">
+                            Seleccionar etiqueta
+                        </label>
                     </div>
-                    <p class="card-text font-monospace fw-bold mb-1">@lote.CodigoQR</p>
-                    <small class="text-muted">Expira: @lote.FechaExpiracion.ToString("dd/MM/yyyy")</small>
+
+                    <h5 class="card-title text-truncate fw-bold">
+                        @ViewBag.ProductoNombre
+                    </h5>
+
+                    <div class="my-2">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=@Uri.EscapeDataString(lote.CodigoQR)"
+                             alt="QR Code"
+                             class="img-fluid" />
+                    </div>
+
+                    <p class="card-text font-monospace fw-bold mb-1">
+                        @lote.CodigoQR
+                    </p>
+
+                    <small class="text-muted">
+                        Expira: @lote.FechaExpiracion.ToString("dd/MM/yyyy")
+                    </small>
+
                 </div>
             </div>
         }
+
     </div>
 </div>
 
-<!-- Estilo CSS exclusivo para cuando el navegador imprima en papel -->
-<style>
-    @@media print {
-        .no-print {
-            display: none !important;
-        }
-        body {
-            background-color: white !important;
-        }
-        .card {
-            border: 1px dashed #000 !important;
-            box-shadow: none !important;
-            break-inside: avoid;
-        }
-    }
-</style>
+@section Scripts {
+    <script src="~/js/qr-print.js" asp-append-version="true"></script>
+}

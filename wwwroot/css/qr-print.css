@@ -1,0 +1,27 @@
+
+@media print {
+
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        background-color: white !important;
+    }
+
+    /* Hide every QR label by default */
+    .qr-item {
+        display: none !important;
+    }
+
+    /* Show only selected QR labels */
+    .qr-item.selected {
+        display: block !important;
+    }
+
+    .card {
+        border: 1px dashed #000 !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+}
