@@ -7,7 +7,7 @@ from libcamera import controls
 # API endpoint
 API_URL = "http://localhost:5141/api/Sensores/lectura"
 
-# Initialize Raspberry Pi camera using Picamera2 with higher resolution for better quality
+# Initialize Raspberry Pi camera using Picamera2 with higher resolution for better quality 
 print("Inicializando Picamera2 con alta calidad...")
 picam2 = Picamera2()
 
